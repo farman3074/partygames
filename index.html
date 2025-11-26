@@ -48,7 +48,10 @@
                     <select id="action-list-select">
                         <option value="default">Default List</option>
                     </select>
-                    <button id="create-action-list-btn" class="btn-secondary">Create New List</button>
+                    <div class="button-group">
+                        <button id="create-action-list-btn" class="btn-secondary">Create New List</button>
+                        <button id="export-action-list-btn" class="btn-secondary">Export/Share List</button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -56,7 +59,27 @@
                     <select id="punishment-list-select">
                         <option value="default">Default List</option>
                     </select>
-                    <button id="create-punishment-list-btn" class="btn-secondary">Create New List</button>
+                    <div class="button-group">
+                        <button id="create-punishment-list-btn" class="btn-secondary">Create New List</button>
+                        <button id="export-punishment-list-btn" class="btn-secondary">Export/Share List</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Import List from File:</label>
+                    <div class="button-group">
+                        <input type="file" id="import-list-file" accept=".json" style="flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 8px;">
+                        <button id="import-list-btn" class="btn-secondary">Import List</button>
+                    </div>
+                    <small style="color: #666; display: block; margin-top: 5px;">Select a .json file that was previously exported</small>
+                </div>
+
+                <div id="export-buttons-container" class="export-buttons-container" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd;">
+                    <h4 style="margin-bottom: 10px; color: #667eea;">Download This List:</h4>
+                    <div class="button-group">
+                        <button id="download-list-btn" class="btn-share">💾 Download List File</button>
+                    </div>
+                    <small style="color: #666; display: block; margin-top: 10px;">Download the file and share it with others via any messaging app or file sharing method</small>
                 </div>
 
                 <button id="start-game-btn" class="btn-primary">Start Game</button>
@@ -68,6 +91,13 @@
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <h3 id="modal-title">Create Action List</h3>
+                <div id="export-buttons-container-modal" class="export-buttons-container" style="display: none; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #ddd;">
+                    <h4 style="margin-bottom: 10px; color: #667eea;">Download This List:</h4>
+                    <div class="button-group">
+                        <button id="download-list-btn-modal" class="btn-share">💾 Download List File</button>
+                    </div>
+                    <small style="color: #666; display: block; margin-top: 10px;">Download the file and share it with others via any messaging app or file sharing method</small>
+                </div>
                 <div class="form-group">
                     <label for="list-name">List Name:</label>
                     <input type="text" id="list-name" placeholder="Enter list name">
@@ -76,7 +106,9 @@
                     <label for="list-items">Items (one per line):</label>
                     <textarea id="list-items" rows="10" placeholder="Enter items, one per line"></textarea>
                 </div>
-                <button id="save-list-btn" class="btn-primary">Save List</button>
+                <div class="button-group">
+                    <button id="save-list-btn" class="btn-primary">Save List</button>
+                </div>
             </div>
         </div>
 

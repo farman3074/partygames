@@ -111,7 +111,7 @@ const defaultActionLists = {
             "let others to touch you for 1 minute",
             "let someone bite your nipples for 1 minute",
             "sniff someone's underwear for 1 minute",
-            "Let someone else control your social media for 1 hour",
+            "pick a random porn clip and try to act it out",
             "Do a a drug shot"
         ],
         4: [
@@ -141,64 +141,62 @@ const defaultActionLists = {
     },
     mixed: {
         1: [
-            "What's your biggest fear?",
-            "Do your best impression of someone in the room",
-            "Who was your first crush?",
-            "Sing a song chosen by the group",
-            "What's the most embarrassing thing that's happened to you?",
-            "Dance with no music for 1 minute",
-            "What's a secret you've never told anyone?",
-            "Let the group go through your phone for 30 seconds",
-            "What's your worst habit?",
-            "Eat a spoonful of a condiment"
+            "What's your biggest turn on?",
+            "Who was your last fuck?",
+            "What's the most embarrassing thing that's happened to you during sex?",
+            "What's a secret you've never told anyone about your sex life?",
+            "What's your worst sex experience?",
+            "Eat a spoonful of a condiment",
+            "Flash your ass",
+            "Do 20 push-ups",
+            "Look into someone's eyes for 1 minute",
+            "Stand on one leg for 1 minute",
+            "Speak in an accent for the next 3 rounds"
         ],
         2: [
-            "What's your most embarrassing moment in public?",
-            "Let the group look through your photos for 1 minute",
-            "Who in this room would you most like to kiss?",
-            "Call your ex and hang up immediately",
-            "What's the worst thing you've ever done to a friend?",
-            "Do your best sexy dance",
+            "What's the best pose you like during sex?",
             "What's something you've done that you hope your parents never find out?",
-            "Let someone read your last 5 text messages out loud",
-            "What's a secret about yourself that would ruin your reputation?",
-            "Post an embarrassing photo of yourself on social media"
+            "Who in this room would you most like to kiss?",
+            "What's the worst thing you've ever done to a friend?",
+            "give lap dance to the person to your right",
+            "bend over and open your ass cheeks",
+            "french kiss the person to your left",
+            "whisper sexy words in the person's ear",
+            "let the person lick you for 1 minute"
         ],
         3: [
-            "What's the most embarrassing thing in your search history?",
-            "Kiss the person to your left",
-            "What's your wildest fantasy?",
-            "Let someone go through your entire phone",
+           "Who is your current boy/girl friend",
             "What's the worst thing you've done while drunk?",
-            "Strip down to your underwear",
-            "What's something you've never told your best friend?",
-            "Call your crush and confess your feelings",
+            "What's the strongest drug you have ever taken?",
             "What's the most inappropriate thing you've done in public?",
-            "Do your best impression of a porn star"
+          "let others to touch you for 1 minute",
+            "let someone bite your nipples for 1 minute",
+            "sniff someone's underwear for 1 minute",
+            "pick a random porn clip and try to act it out",
+            "Do a a drug shot"
         ],
         4: [
             "What's the most scandalous thing you've done?",
-            "Kiss the person to your right",
+            "What's something you've done that would shock everyone here?",
             "What's your darkest secret?",
-            "Let the group see your browser history",
             "What's the worst thing you've done to someone you love?",
-            "Strip down to your bra/underwear",
-            "What's something you've done that you can't believe you did?",
-            "Call your ex and tell them you miss them",
-            "What's the most inappropriate place you've been intimate?",
-            "Do a striptease"
+            "French kiss with half penetration sex with someone in the room",
+            "Insert an object inside your hole",
+            "play with your pussy/dick untill it is erect/cumms",
+            "let someonen examine you intimately",
+            "Do something sexual with an inanimate object"
         ],
         5: [
-            "What's the most extreme thing you've ever done?",
-            "Kiss everyone in the room",
-            "What's a secret that would destroy your relationships?",
-            "Strip completely naked",
+         "What's a secret that would destroy your relationships?",
             "What's the worst thing you've done that you've never told anyone?",
-            "Have sex with someone in the room",
             "What's something you've done that you can't forgive yourself for?",
-            "Let the group watch you masturbate",
             "What's your most dangerous secret?",
-            "Do something extremely sexual"
+            "Let the group watch you masturbate",
+            "Do something extremely sexual",
+            "Have a threesome",
+            "Perform oral sex on someone",
+            "Let the group film you doing something sexual",
+            "Have sex in front of everyone",
         ]
     }
 };
@@ -253,11 +251,23 @@ function setupEventListeners() {
     document.getElementById('start-game-btn').addEventListener('click', startGame);
     document.getElementById('create-action-list-btn').addEventListener('click', () => openListModal('action'));
     document.getElementById('create-punishment-list-btn').addEventListener('click', () => openListModal('punishment'));
+    document.getElementById('export-action-list-btn').addEventListener('click', () => exportList('action'));
+    document.getElementById('export-punishment-list-btn').addEventListener('click', () => exportList('punishment'));
+    document.getElementById('import-list-btn').addEventListener('click', importListFromFile);
+    document.getElementById('import-list-file').addEventListener('change', function() {
+        if (this.files.length > 0) {
+            importListFromFile();
+        }
+    });
     document.getElementById('save-list-btn').addEventListener('click', saveList);
     document.getElementById('completed-btn').addEventListener('click', handleActionCompleted);
     document.getElementById('skipped-btn').addEventListener('click', handleActionSkipped);
     document.getElementById('continue-btn').addEventListener('click', continueAfterPunishment);
     document.getElementById('play-again-btn').addEventListener('click', resetGame);
+    
+    // Download buttons
+    document.getElementById('download-list-btn-modal').addEventListener('click', () => downloadListFile('modal'));
+    document.getElementById('download-list-btn').addEventListener('click', () => downloadListFile('setup'));
     
     const closeModal = document.querySelector('.close');
     closeModal.addEventListener('click', closeListModal);
@@ -268,6 +278,7 @@ function setupEventListeners() {
             closeListModal();
         }
     });
+    
 }
 
 function loadSavedLists() {
@@ -299,16 +310,202 @@ function loadSavedLists() {
     });
 }
 
+// Download list as JSON file
+function downloadListFile(location) {
+    const exportData = window.currentExportData;
+    if (!exportData) {
+        alert('No list selected for download!');
+        return;
+    }
+    
+    const fileData = {
+        name: exportData.name,
+        data: exportData.data,
+        type: exportData.type,
+        version: '1.0',
+        exportedAt: new Date().toISOString()
+    };
+    
+    const jsonString = JSON.stringify(fileData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${exportData.name.replace(/[^a-z0-9]/gi, '_')}_${exportData.type}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    alert('List file downloaded! You can now share it with others.');
+}
+
+// Export and show share options for a list
+function exportList(type) {
+    const selectId = type === 'action' ? 'action-list-select' : 'punishment-list-select';
+    const selectedList = document.getElementById(selectId).value;
+    
+    if (selectedList === 'default') {
+        alert('Please select a saved list to export, or create a new list first!');
+        return;
+    }
+    
+    const storageKey = type === 'action' ? 'actionLists' : 'punishmentLists';
+    const savedLists = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    const listData = savedLists[selectedList];
+    
+    if (!listData) {
+        alert('List not found!');
+        return;
+    }
+    
+    // Store current export data globally for sharing
+    window.currentExportData = {
+        name: selectedList,
+        data: listData,
+        type: type
+    };
+    
+    // Show export buttons in setup screen
+    const exportContainer = document.getElementById('export-buttons-container');
+    exportContainer.style.display = 'block';
+    
+    // Scroll to export section
+    exportContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Share via WhatsApp
+function shareViaWhatsApp(location) {
+    const exportData = window.currentExportData;
+    if (!exportData) {
+        alert('No list selected for sharing!');
+        return;
+    }
+    
+    // Download the file first
+    downloadListFile(location);
+    
+    // Provide instructions
+    const message = `Check out this ${exportData.type} list: "${exportData.name}"\n\nThe list file has been downloaded. Please attach it to this message and share it. The recipient can import it in the Party Games app using the "Import List from File" option.`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    // Small delay to ensure file download starts
+    setTimeout(() => {
+        if (confirm('The file has been downloaded. Click OK to open WhatsApp. Then attach the downloaded file to your message.')) {
+            window.open(whatsappUrl, '_blank');
+        }
+    }, 500);
+}
+
+// Share via Email
+function shareViaEmail(location) {
+    const exportData = window.currentExportData;
+    if (!exportData) {
+        alert('No list selected for sharing!');
+        return;
+    }
+    
+    // Download the file first
+    downloadListFile(location);
+    
+    const subject = `Check out this ${exportData.type} list: ${exportData.name}`;
+    const body = `I wanted to share this ${exportData.type} list with you:\n\n${exportData.name}\n\nThe list file has been downloaded. Please attach it to this email. The recipient can import it in the Party Games app using the "Import List from File" option.`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    // Small delay to ensure file download starts
+    setTimeout(() => {
+        if (confirm('The file has been downloaded. Click OK to open your email client. Then attach the downloaded file to your email.')) {
+            window.location.href = mailtoUrl;
+        }
+    }, 500);
+}
+
+// Import list from file
+function importListFromFile() {
+    const fileInput = document.getElementById('import-list-file');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a file to import!');
+        return;
+    }
+    
+    if (!file.name.endsWith('.json')) {
+        alert('Please select a valid JSON file!');
+        return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            const fileContent = e.target.result;
+            const listInfo = JSON.parse(fileContent);
+            
+            // Validate file structure
+            if (!listInfo || !listInfo.name || !listInfo.data || !listInfo.type) {
+                alert('Invalid list file format! The file should contain a list exported from this app.');
+                return;
+            }
+            
+            // Validate type
+            if (listInfo.type !== 'action' && listInfo.type !== 'punishment') {
+                alert('Invalid list type! The file must be an action or punishment list.');
+                return;
+            }
+            
+            // Save the imported list
+            const storageKey = listInfo.type === 'action' ? 'actionLists' : 'punishmentLists';
+            const savedLists = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            
+            // Check if list with same name exists
+            let listName = listInfo.name;
+            let counter = 1;
+            while (savedLists[listName]) {
+                listName = `${listInfo.name} (${counter})`;
+                counter++;
+            }
+            
+            savedLists[listName] = listInfo.data;
+            localStorage.setItem(storageKey, JSON.stringify(savedLists));
+            
+            // Reload lists and select the imported one
+            loadSavedLists();
+            const selectId = listInfo.type === 'action' ? 'action-list-select' : 'punishment-list-select';
+            document.getElementById(selectId).value = listName;
+            
+            // Clear file input
+            fileInput.value = '';
+            
+            alert(`List "${listName}" imported successfully!`);
+        } catch (error) {
+            console.error('Import error:', error);
+            alert('Failed to import list. The file may be corrupted or in an invalid format. Please check the file and try again.');
+        }
+    };
+    
+    reader.onerror = function() {
+        alert('Error reading file. Please try again.');
+    };
+    
+    reader.readAsText(file);
+}
+
 function openListModal(type) {
     const modal = document.getElementById('list-modal');
     const modalTitle = document.getElementById('modal-title');
     const listNameInput = document.getElementById('list-name');
     const listItemsTextarea = document.getElementById('list-items');
+    const exportContainer = document.getElementById('export-buttons-container-modal');
     
     modal.dataset.type = type;
     modalTitle.textContent = type === 'action' ? 'Create Action List' : 'Create Punishment List';
     listNameInput.value = '';
     listItemsTextarea.value = '';
+    
+    // Hide export buttons when opening modal for new list
+    exportContainer.style.display = 'none';
+    window.currentExportData = null;
     
     if (type === 'action') {
         listItemsTextarea.placeholder = 'Enter actions, one per line. Actions will be distributed across heat levels automatically.';
@@ -335,6 +532,7 @@ function saveList() {
     }
     
     const items = listItems.split('\n').filter(item => item.trim());
+    let listData;
     
     if (type === 'action') {
         // Distribute actions across heat levels
@@ -348,18 +546,30 @@ function saveList() {
             actionList[level] = items.slice(startIndex, endIndex);
         }
         
+        listData = actionList;
         const savedLists = JSON.parse(localStorage.getItem('actionLists') || '{}');
         savedLists[listName] = actionList;
         localStorage.setItem('actionLists', JSON.stringify(savedLists));
     } else {
+        listData = items;
         const savedLists = JSON.parse(localStorage.getItem('punishmentLists') || '{}');
         savedLists[listName] = items;
         localStorage.setItem('punishmentLists', JSON.stringify(savedLists));
     }
     
+    // Store export data for sharing
+    window.currentExportData = {
+        name: listName,
+        data: listData,
+        type: type
+    };
+    
+    // Show share options in modal
+    const exportContainer = document.getElementById('export-buttons-container-modal');
+    exportContainer.style.display = 'block';
+    
     loadSavedLists();
-    closeListModal();
-    alert('List saved successfully!');
+    alert('List saved successfully! You can now download and share it using the buttons below.');
 }
 
 function startGame() {
